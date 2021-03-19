@@ -1,0 +1,6 @@
+How to delete all files starting with a repeating name. 
+
+rm -rf Example*
+
+bash 
+source: https://superuser.com/questions/482435/how-to-remove-all-files-starting-with-a-certain-string-in-linux
