@@ -1,4 +1,7 @@
 /* Fix Dr P's mistake integers
+ * Calculate the area of a sphere given a double.
+ * Output the result as a double.
+ *
  * Mohammed Ali
  * Dec 20, 2021
 */
