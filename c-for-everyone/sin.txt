@@ -1,5 +1,5 @@
 /* Sin function
- * Write a program that prints the sine ofs a 
+ * Write a program that prints the sine of a 
  * number between 0 and 1 exclusive
  * 
  * Mohammed Ali
