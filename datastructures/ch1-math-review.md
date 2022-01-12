@@ -11,7 +11,7 @@ Ch 7 discusses a solution to the selection problem which gives a solution in sec
 
 ## 1.2 Mathematics Review
 
-There are some important formulas to memorize, or be able to derive and a brief proof methods review.
+There are some important formulas to memorize, or be able to derive and a brief proof methods review. Github doesn't show markdown math easily but visual studio code markdown viewer is able to do so. 
 
 ### [Intro to Mathematics Markdown](https://learninglab.gitlabpages.inria.fr/mooc-rr/mooc-rr-ressources/module1/ressources/introduction_to_markdown.html#fractions-binomial-coefficients-square-roots)
 
