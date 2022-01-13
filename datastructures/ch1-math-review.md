@@ -26,3 +26,35 @@ There are some important formulas to memorize, or be able to derive and a brief 
 - $X^{N}$ + $X^{N}$ = $2X^{N}$
 
 - $2^{N}$ + $2^{N}$ = $2^{N+1}$
+
+
+### 1.2.2 Logarithms
+
+In computer science, all logorithms are base 2 unless specified otherwise
+
+- $X^A$ = B if and only if $log{_X}{B}$ = A
+
+Theorom 1.1 
+
+$log{_A}{B}$ = $\frac{log{_C}{B}}{log{_C}{A}}$;   where A, B, C > 0, A $\neq$ 1
+
+
+Theorem 1.2
+
+$log{}{AB}$ = $log{}{A}$   + $log{}{B}$;  where A,B > 0
+
+
+Other Useful formulas
+- $log{}{\frac{A}{B}}$ = $log{}{A}$   - $log{}{B}$
+
+- $log{}{{A^B}}$ = B  $log{}{A}$
+
+- $log{}{X}$ < X for all X > 0
+
+- $log{}{(1)}$ = 0
+
+- $log{}{(2)}$ = 1
+
+- $log{}{(1024)}$ = 10
+
+- $log{}  {(1,048,576)}$ = 20
