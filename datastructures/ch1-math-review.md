@@ -123,6 +123,87 @@ Considerations when usign recursion.
 
 Bookkeeping details and tracing or debugging recursive programs is more difficult. The main benefits to recursion are in simplifying algorithm design and fewer lines of code. Recursion should not be used in lieue of a simple for loop. Section 3.6 has more about recursion.
 
+### 1.4 C++ Classes
+
+All data structures that store data and include functions to manipulate collections will be objects. Classes are used in C++ to define objects. 
+
+### 1.4.1 Basic class syntax
+
+A class consist of members. Members are either data or functions. Functions are called member functions. Each instance of a class is an object. Every object includes the data defined in the class. A member function is used to manipulate the object. Member functions are also called methods. 
+
+Private and public labels determine visibility of class members. Information hiding, restricts access of internal details of the class. 
+
+A constructor method describes how an instance of a class is constructed. 
 
 
+### Figure 1.5 A complete declaration of an IntCell class
+```
+/**
+ * A class for simulating an integer memory cell.
+ */
+Class IntCell
+{
+  public: 
+  /**
+   * Construct the IntCell.
+   * Initial value is 0.
+   */
+   IntCell()
+   { storedValue = 0;}
 
+   /**
+    * Construct the IntCell
+    * Initial value is initialValue.
+    */
+    IntCell( int initialValue )
+    { storedValue = initialValue; }
+
+    /**
+     * Return the stored value.
+     */
+     int read()
+     { return storedValue; }
+
+     /**
+      * Change the stored value to x
+      */
+      void write( int x )
+      { storedValue = x; }
+
+    private: 
+        int storedValue;
+}
+```
+
+
+### 1.4.2 Extra Constructor Syntax and Accessor
+Figure 1.5 is works but there are some optimizations possible shown below in Figure 1.6. First we can use an initialization list in our constructor and remove the zero parameter constructor. Then we make all one parameter constructors explicit to avoid implicit type conversions. And finally we use const because read examines but does not change the state of our object instances. Accessors can use constants because unlike mutator methods, they do not change the state of our object.
+
+
+### Figure 1.6 IntCell revised
+```
+/**
+ * A class for simulating an integer memory cell.
+ */
+Class IntCell
+{
+  public: 
+    /**
+      * Construct the IntCell.
+      * Initial value is initialValue.
+      */
+    explicit: IntCell(int initialValue = 0 )
+      : storedValue = {initialValue} {}
+
+    int read() const
+    { return storedValue; }
+
+    void write( int x )
+    { storedValue = x; }
+
+  private: 
+    int storedValue;
+}
+```
+
+### 1.4.3 Separation of Interface and Implementation
