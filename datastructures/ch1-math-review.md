@@ -58,3 +58,21 @@ Other Useful formulas
 - $log{}{(1024)}$ = 10
 
 - $log{}  {(1,048,576)}$ = 20
+
+### 1.2.3 Series
+
+Try and memorize
+
+- 	$\sum_{i=0}^{N} 2^{i}$ = $2^{N+1}$  -1
+
+- 	$\sum_{i=0}^{N} A^{i}$ = $\frac{A^{N+1}  -1}{A-1}$
+
+-   $\sum_{i=1}^{N} i = \frac{N(N + 1)}{2}$ $\approx$ $\frac{N^2}{2}$
+
+- Harmonic sum and Harmonic numbers $H_{N}$ = $\sum_{i=1}^{N} \frac{1}{i}$ $\approx$ $log{_e}{N}$ approximates to Euler's Constant 0.5772...
+
+Algebraic Manipulations
+
+- $\sum_{i=1}^{N} f(N)$ = N $f(N)$
+
+- $\sum_{i=n_{0}}^{N} f(i)$ = $\sum_{i=1}^{N} f(i)$ - $\sum_{i=1}^{n_{0}-1} f(i)$ 
