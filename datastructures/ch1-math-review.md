@@ -143,7 +143,7 @@ A constructor method describes how an instance of a class is constructed.
  */
 Class IntCell
 {
-  public: 
+  public:
   /**
    * Construct the IntCell.
    * Initial value is 0.
@@ -170,7 +170,7 @@ Class IntCell
       void write( int x )
       { storedValue = x; }
 
-    private: 
+    private:
         int storedValue;
 }
 ```
@@ -207,3 +207,279 @@ Class IntCell
 ```
 
 ### 1.4.3 Separation of Interface and Implementation
+
+Often object oriented programming and C++ allows for separation of implementation from a class interface. Interface typically has a .h file extension. There are some techniques for avoiding reading interfaces more than once in a program. The preprocessor commands #ifndef and #define allow us to do this.
+
+
+### Figure 1.7 A class interface in file IntCell.h
+```
+/**
+ * An class for simulating an integer memory cell.
+ */
+Class IntCell
+{
+  public: 
+    /**
+      * Construct the IntCell.
+      * Initial value is initialValue.
+      */
+    explicit: IntCell(int initialValue = 0);
+
+    int read() const;
+
+    void write( int x );
+
+  private: 
+    int storedValue;
+};
+```
+
+
+### Figure 1.8 IntCell class implementation in file IntCell.cpp
+```
+#include "IntCell.h"
+/**
+ * Construct the IntCell with initialValue
+ */
+intCell::IntCell( int initialValue ) : storedValue{ initialValue }{
+
+/**
+ * Return the stored value.
+ */
+ int IntCell::read( ) const
+ {
+   return storedValue;
+ }
+
+ /**
+  * Store x.
+  */
+  void IntCell::write( int x )
+  {
+    storedValue = x;
+  }
+
+}
+```
+
+Scope Resolution: each member function must identify the class it belongs to using the ClassName::member syntax.
+
+Signatures Must match exactly. The return type of the interface and whether it is mutable must match the interface.
+
+Default paramters are omitted in the implementation but are expressed in the interface.
+
+Objects are declared like Primitives e.g.
+
+The following are correct
+- IntCell obj1;        // Zero params constructor
+- IntCell obj2( 12 );  // One param constructor
+- IntCell obj3{ 12 };  // One param same as before
+- IntCell obj4{ };     // Zero param same as before
+
+### Figure 1.9 Program that uses IntCell in file TestIntCell.cpp
+
+```
+#include <iostream>
+#include "IntCell.h"
+using namespace std;
+
+int main()
+{
+  IntCell m;
+
+  m.write( 5 );
+  cout << "Cell contents: " << m.read() << endl;
+
+  return 0;
+}
+```
+
+## 1.4.4 vector and string
+
+### Figure 1.10 Using the vector class: stores 100 squares and outputs them
+```
+#include <iostream>
+#include <vector>
+using namespace std;
+
+int main( )
+{
+    vector<int> squares( 100 );
+
+    for( int i = 0; i < squares.size( ); ++i )
+      squares[ i ] = i * i;
+
+    for( int i = 0; i < squares.size( ); ++i)
+      cout << i << " " << squares[ i ] << endl;
+
+
+    return 0;
+}
+```
+
+The C++ standard defines two classes: the vector and string. Vector is intended to replace built in array data structure because an array cannot be copied, does not remember how many items it can store, and its indexing operator does not check that the index is valid. Furthermore, the C++ built instances of the string datatype is cannot be easily compared using ==.
+
+ Vectors and string classes in the STL are first class objects that can be copied, compared.
+
+ As of C++ 11
+
+ ```
+ vector<int> daysInMonth = { 31, 28, 31, 30, 31, 30, 31,31, 30, 31, 30, 31 };
+ ```
+
+ but this violates uniform initialization so some prefer
+
+
+ ```
+ vector<int> daysInMonth { 31, 28, 31, 30, 31, 30, 31,31, 30, 31, 30, 31 };
+ ```
+ Above allows for uniform initialization.
+
+
+```
+ vector<int> daysInMonth( 12 ) // Must use () to call constructor that takes size.
+```
+Above allows overwriting the initial vector size
+
+Iterating over an array and accessing every array index using [] is common in array manipulation. C++11 adds range "for" syntax for this reason.
+
+```
+int sum = 0;
+for( int x : squares )
+  sum += x;
+```
+
+Sometimes type declaration in the range for statement is redundant. Since squares is a vector<int>, it is clear that the index of each square is also an int. Therefor C++ 11 also includes the "auto" keyword to automatically infer the appropriate type:
+
+```
+int sum = 0;
+for( auto x : squares )
+  sum += x;
+```
+
+
+## 1.5.1 Pointers
+
+A pointer variable stores the address where another object lives. Pointers are fundamental to many datastructures.
+
+For example storing a list of items could use an array data structure. But we cannot easily insert in the middle of the array without moving many items.
+
+Instead, we can store the collection in a separate, noncontiguous piece of memory, that is expanded or contracted dynamically as the programs runs. Along with each object in the collection is also a link to the next object. The link is a pointer variable because it stores the memory location of another object.
+
+This describes the classic LinkedList data structure, discussed more detail in Ch. 3.
+
+Figure 1.11 is not useful and is only to illustrate dynamic memory allocation in a simple way.
+
+### Figure 1.11
+ ```
+int  main( )
+{
+  IntCell *m; /// * indicates that m is a pointer variable.
+
+  m = new IntCell{ 0 };
+  m->write( 5 );
+  cout << "Cell contents: " << m->read( ) << endl;
+
+  delete m;
+  return 0;
+
+}
+ ```
+
+In Figure 1.11 m is a pointer variable and is allowed to point at an IntCell object. The value of m is the address of the object it points to. C++ does not check to verify pointers are assigned values before usage. The use of uninitialized pointers crashes programs since they try to access memory locations that do not exist. Always provide an initial value or use the nullptr pointer.
+
+
+Dynamic Object Creation
+There are several ways to dynamically create an object pointer
+
+- m = new IntCell( );   // ok
+- m = new IntCell{ };   // C++11
+- m = new IntCell;      // Preferred by Weiss
+
+### Garbage Collection
+In some languages when an object is no longer needed, it is automatically destroyed by garbage collection: the programmer does not need to worry. C++ does not have garbage collection. When an object that is allocated by new is no longer referenced, the delete operation must be used through a pointer to safely delete it. When this is not done properly memory leaks can occur.
+
+Memory leaks can be automatically removed with some attention. A good rule is to not use new when an automatic variable can be used instead.
+
+In the initial program figure 1.5 storedValue is a local variable and also an automatic variable - meaning automatically garbage collected.
+
+### Assignment and comparison of pointers
+Two pointer variables are equal only if they point to the same object. Otherwise, they point at different objects and are not equal, even if the objects being pointed at are equal. Assignemnt also allows for shareing the location of an object with another pointer variable (of compatible type).
+
+### Accessing Members of an Object through a Pointer
+If a pointer variable can access a public (visible) member of an object using the -> operator as shown in Figure 1.11
+
+### Address-of Operator (&)
+The address-of operator & returns the memory location where an object exists and is useful in writing alias tests.
+
+
+### 1.5.2 Lvalues, Rvalues, and References
+
+C++ also defines reference types and C++11 introduces rvalue reference. In this intro, complicated edge cases are ignored for now for simplicity.
+
+An "lvalue" is an expression that identifies a non-temporary object. An "rvalue" is an expression that identifies a temporary object or is a value not associated with any object.
+
+Consider the following
+- vector<string> arr( 3 );
+- const int x = 2;
+- int y;
+- int z = x + y;
+- string str = "foo";
+- vector<string> *ptr = &arr;
+
+In the declarations above, arr, str, arr[x], &x, y, z, *ptr, (*ptr)[x] are all lvalues. x is also an lvalue, although it is not mutable. Generally, Any variable with a name is an lvalue, regardless if it is modifiable.
+
+Alternatively, "foo", x+y, str.substring(0,1) are all rvalues. 2 and "foo" are rvalues because they are literals. Also, x+y is an rvalue because it is temporary; it is not x or y, but is stored somewhere before being assigned to z. If a function call computes an expression whose value does not exist before the call and does not exist after the function executes unless copied somewhere, the expression is likely an rvalue.
+
+A reference allows us to  define a new name for an existing value. In classic C++, a reference is generally limited to the name for an lvalue, because having a reference to a temporary object might inadvertently allow for accessing it after its deletion. In C++11, there are two types of references lvalue references and rvalue references.
+
+
+In C++11 an lvalue reference is declared by placing an & after some type. An lvalue reference then becomes another name or synonym for the object it referenes.
+
+Some exampels
+- string str = "hell";
+- string & rstr = str;              //  another name for str
+- rstr += 'o';                      // 'hello'
+- bool cond = (&str == &str);       // true, same obj
+- string & bad1 = "hello";          // illegal hello is not a modifiable lvalue
+- string & bad2 = str + "";         // illegal str + "" is not an lvalue
+- string & sub = str.substr( 0, 4 );  // illegal str.substr( 0,4 ) is not an lvalue
+
+In C++, an rvalue reference is declared by placing an && after some type. An rvalue reference acts like an lvalue except unlike an lvalue reference, an rvalue reference can also reference an rvalue.
+
+- string str = "hell";
+- string && bad1 = "hello";            // legal
+- string && bad2 = str + "";           // legal
+- string && sub = str.substr( 0, 4 );  // legal
+
+
+### lvalue refernces use case #1: aliasing complicated names
+
+The simplest use, is to use a local reference variable to rename an object that is known by a complicated expression. Doing so avoids rerunning the complicated expression when accessing the renamed variable. 
+
+### lvalue reference use case #2 range for loops
+In a range for statement, when iterating over a collection using a for statement, the index for each item in a collection assumes a copy of each value in the collection.
+
+for example
+
+for( auto x : arr ) // broken
+  ++x;
+
+What we want is for each index "x" to be another name for each value in the vector.
+
+for( auto & x : arr ) //works
+  ++x;
+
+### lvalue references use #3 avoiding a copy
+If we dont intend to change our copy, there's no need to have duplicate resources to store each copy and a reference will work to save resources. This is especially useful when storing large objects.
+
+example
+```
+auto & x = findMax( arr );
+```
+
+Normally, findMax must specify a return type that is an lvalue
+
+important concepts
+1. Reference variables copy objects accross function-call boundaries.
+2. Syntax is needed in function declarations and retuns to allow passing and returning using references instead of copies.
