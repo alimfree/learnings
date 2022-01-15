@@ -530,3 +530,117 @@ vector<string> v { "hello", "world" };
 cout << randomItem( v ) << endl;  // invokes lvalue method
 cout << randomItem( { "hello", "world" } ) << endl; invokes rvalue method
 ```
+
+## 1.5.4 Return Passing
+
+There are also several ways to return from a function in C++. The first is return-by-value, as shown below:
+
+```
+double average( dobule a, double b ); // returns average of a and b
+LargeType randomItem( const vector<LargeType> & arr);   // potentially inefficient
+vector<int> partialSum( const vector<int> & arr );  // efficient in C++11
+```
+
+All these methods return an object of appropriate type, and in all cases the result of the function call is an rvalue. The call to randomItem has some inefficiences. The call to partialSum also has some potential inefficiencies, but is efficient in C++11.
+
+
+### Figure 1.12 Two versions to obtain a random item in an array; second version avoids creation of a temporary LargeType object, but only if the caller access it with a constant reference.
+```
+LargeType randomItem( const vector<LargeType> & arr )
+{
+  return arr[ randomInt( 0, arr.size() -1 ) ];
+}
+
+const LargeType & randomItem2( const Vector<LargeType> & arr)
+{
+  return arr[ randomInt( 0, arr.size( ) - 1 ) ];
+}
+
+  vector<LargeType> vec;
+  ...
+  LargeType item1 = randomItem1( vec);          // copy
+  LargeType item2 = randomItem2( vec );         //copy
+  const LargeType & item3 = randomItem2( vec ); // no copy
+```
+
+The parameters in the first implementation of randomItem uses return-by-value. LargeType at the random array index will be copied as a part of the return sequence. This is because return expressions can be rvalues, and may not exist by the time the function call returns at line 13. But in this example the return typ eis an lvalue that will exist long after the function call returns, since arr is the same as vec.
+
+The second implementation uses return-by-constant-reference to avoid an immediate copy. The catch, though, is the caller must also use a constant reference to access the return value, as shown on line 15. The constant reference signals we do not want to allow changes to be made by the caller using the return value. An alternative is to use auto & at line 15 to declare item3.
+
+Historically C++ programmers spent considerable effort writing code using pointers or additional parameters which decreased readability and maintainability, eventually leading to many programming errors. Figure 1.13 introduces some solutions to these problems.
+
+
+Figure 1.13 Returning of a stack-allocated rvalue in C++11
+```
+vectors<int> partialSum( const vector<int> & arr )
+{
+  vector<int> result( arr.sive( ) );
+
+  result[ 0 ] = arr[ 0 ];
+  for( int i = 1; i <  arr.size( ); ++i )
+    result[ i ] = result[ i - 1 ] + arr[ i ];
+
+  return result;
+}
+
+  vector<int> vec;
+  ...
+  vector<int> sums = partialSum( vec ); // Copy in old C++; move in C++11
+```
+
+In addition to return-by-value and return-by-constant-reference idioms, function can also use return-by-reference. This allows the caller of a function to have modifiable access to the internal data representation of a class
+
+# Questions
+
+1. What are move symantics mentioned on Page 28?
+2. How does return-by-reference work and what are its advantages
+
+
+## 1.5.5 std::swap and std::move
+
+This section shows how C++11 allows easily replacing expensive copies with moves. Another exampel of th is is the implementation of a swap routine. Swapping doubles is implemented with three copies in Figure 1.14. Though this works, it comes with a significant cost; since copies are expensive the larger our objects are. Often there is no need to copy; what we want is to move instead of copies.
+
+
+In C++11 if the right hand side of an assignment operator (or constructor) is an rvalue, then if the object supports moving, we can automatically avoid copies. Remember if an object has a name, it is an lvalue. So Figure 1.14 uses lvalues so copies are used.  Figure 1.15 shows how this problem is solved by using cast to treat the right-hand side of lines 10-12 as rvalues.
+
+The syntax of a static cast is daunting, however, std::move exists and converts any lvalue (or rvalue) into an rvalue.
+
+Note std::move doesn't move anything; rather makes a value subject to be moved. Use of std::move is also shown in figure 1.15 in a revised implementation of swap at lines 8-13. The swap function std::swap is also part of the Standard Library and will work for any type.
+
+
+### Figure 1.14 Swapping by three copies
+```
+void swap( double & x, double & y)
+{
+  double tmp = x;
+  x = y;
+  y = tmp;
+}
+
+void swap( vector<string> & x, vector<string> & y )
+{
+  vector<string> tmp = x;
+  x = y;
+  y= tmp;
+}
+
+```
+
+### Figure 1.15 Swapping by three moves; first with a type cast, second using std:
+
+```
+void swap( vector<string> & x, vector<string> & y )
+{
+  vector<string> tmp = static_cast<vector><string> &&>( x );
+  x = static_cast<vector<string> &&>( y );
+  y = static_cast<vector<string> &&>( tmp );
+}
+
+// Copies are avoided, moves used instead
+void swap( vector<string> & x, vector<string> & y )
+{
+  vector<string> tmp = std::move(x);
+  x = std::move( y );
+  y = std::move( tmp);
+}
+```
