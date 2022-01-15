@@ -644,3 +644,157 @@ void swap( vector<string> & x, vector<string> & y )
   y = std::move( tmp);
 }
 ```
+
+## 1.5.6 The Big-five: Desctructor, Copy Constructor, Move Constructor, Copy Assignment operator=, Move assignment operator=
+
+In C++11, classes have five special functions already available to you. These are the destructor, copy constructor, move constructor, copy assignment operator, and move assignement operator. These are collectively called the big-five. In many cases the default behavior is fine, but sometimes you may need to reimplement them.
+
+### destructor
+
+A destructor is called whenver an object is subjected to a delete or is garbage collected. The only responsibility of destructor is to free up the resources used by the object. This may include, calling delete for any instances of the class, closing opened files, etc. The default simply applies the destructor on each member data. 
+
+### Copy Constructor and Move Constructor
+
+There are two special constructors that are required to construct a new object, that is initialized to the same state of an existing object. 
+
+The copy constructor if the existing object is an lvalue, and the move constructor if the existing object is an rvalue ( i.e. a temporary that is about to be destroyed). For any object, a copy constructor or move constructor is called in these scenarios: 
+
+- a declaration with initialization, such as
+
+```
+    IntCell B = C;        // Copy construct if C is an lvalue; Move construct if C is an rvalue
+
+    IntCell B { C };      // Copy construct if C is an lvalue; Move construct if C is an rvalue
+
+    but not
+    B = C;                // Assignment operator, discussed later
+```
+
+- an object passed using call-by-value (instead of by & or const &), which, as mentioned earlier should rarely be done.
+- an object returned by value (instead of by & or const &). A copy constructor is invoked if the object being return is an lvalue, and move constructor if the object return is an rvalue.
+
+By default, the copy constructor is implemented by applying copy constructors to each data member. For data members that are primitive ( int, double, or pointers), simple assignemnt is done. Data members that are objects, the copy constructor or move constructor is applied for each data member's class is applied to that data member.
+
+### Copy Assignment and Move  Assignment (operator=)
+
+The assignment operator is called when = is applied to two objects the already exist. lhs=rhs is intended to copy the state of rhs into lhs. If rhs is an lvalue, the copy assignment operator is used, if rhs is an rvalue (temporary), this is done using hte move assignment operator. By default the copy assignment operator is implememnted by applying the copy assignment operator to each member.
+
+### Defaults
+
+Often a class is composed of data members that are exclusively primitive types and objects for which defaults make sense, the class defaults will make sense. A class then can accept defaults.
+
+When a class containers a data member that is a pointer, we must write our own delete these data members ourselves by implementing the big-five ourselves. The default destructor does nothing to data members that are pointers. As a rule we either accept all five default operations, or define all five operations. 
+
+
+Generally we define the signatures of the big-five operations like so:
+
+```
+~IntCell( );                                // Destructor
+IntCell( const IntCell & rhs );             // Copy constructor
+IntCell( IntCell && rhs );                  // Move constructor
+IntCell & operator= ( const IntCell & rhs ) // Copy assignment 
+IntCell & operator= ( const IntCell && rhs ) // Move assignment 
+```
+
+The return type of operator= is a reference to the invoking object, which allows chained assignments a=b=c.
+
+Even when simplying adding debugging logic to a single one of the big-five operations, its a good practice to rewrite all five. There is no gaurantee that unspecified operations are generated, as this gaurantee is deprecated and might not be available in future versions of the language.
+
+Also, we can disallaw copying and moving instances of our class by
+
+
+// No C
+```
+IntCell( const IntCell & rhs ) = delete;             // No Copy constructor
+IntCell( IntCell && rhs ) = delete;                  // No Move constructor
+IntCell & operator= ( const IntCell & rhs )  = delete // No Copy assignment 
+IntCell & operator= ( const IntCell && rhs ) = delete // No Move assignment 
+```
+
+### When the defaults do not work
+
+Figure 1.16 shows a few problems when data members are a pointer type and the pointer is allocated by some object member function.
+
+The problem is the default copy assignment operator and copy cunstructor copy the pointer stored value. Thus a.storedValue, b.storedValue, and c.storedValue all point at the same int value. These copies are shallow; the pointers rather than the pointees are copied. Another problem is a memory leak. The int initially allocated by a's constructor remains allocated and it's resources need to be reclaimed. The int allocated by c's constructor is no longer referenced by any pointer variable and also needs to be reclaimed. 
+
+To fix these problems, we implement the big-five.
+
+### Figure 1.16 Data member is a pointer; defaults are no good
+```
+class IntCell
+{
+  public:
+    explicit IntCell( int initialValue = 0 )
+      { storedValue = new int { initialValue }; }
+
+    int read( ) const
+      { return *storedVaue; }
+    void write( int x )
+      { *storedValue = x; }
+
+  private: 
+    int *storedValue;
+};
+```
+
+
+### Figure 1.17 Simple function that exposes problems in Figure 1.16 
+```
+int f( )
+{
+  IntCell a { 2 };
+  IntCell b = a;
+  IntCell c;
+
+  c = b;
+  a.write ( 4 );
+  cout << a.read( ) << endl << b.read( ) << endl << c.read( ) << endl;
+
+  return 0;
+}
+```
+
+### Figure 1.8 Data member is a pointer; big-five is written
+
+```
+class IntCell
+{
+  public IntCell( int initialValue = 0 )
+    { storedValue = new int { initialValue }; }
+
+    ~IntCell( )                                               // Descturctor
+    { delete storedValue; }
+
+    IntCell( const IntCell & rhs )                            // Copy Constructor
+    { storedValue = new int{ * rhs.storedvalue }; }
+
+    IntCell( IntCell && rhs ) : storedValue{ rhs.storedValue} // Move Constructor
+    { rhs.storedValue = nullptr; }
+
+    IntCell & operator= ( const IntCell & rhs )               // Copy assignment
+    {
+      if(this != &rhs )
+        *storedValue, *rhs.storedValue;
+      return *this;
+    }
+
+    IntCell & operator= ( IntCell && rhs )                    // Move assignemnt
+    {
+      std::swap( storedValue, rhs.storedValue );
+      return *this;
+    }
+
+    int read( ) const
+      { return *storedValue; }
+    void write( int x )
+      { *storedValue = x; }
+
+  private:
+    int *storedValue 
+}
+```
+
+# Questions
+1. Why is std::swap used in the move assignemnt
+2. what is this and *this in the copy assignment
+3. Need to talk through how each of these big five.
