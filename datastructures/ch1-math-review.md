@@ -483,3 +483,50 @@ Normally, findMax must specify a return type that is an lvalue
 important concepts
 1. Reference variables copy objects accross function-call boundaries.
 2. Syntax is needed in function declarations and retuns to allow passing and returning using references instead of copies.
+
+## l.5.3 Parameter Passing
+
+C++ has three ways to pass parameters, and C++11 includes a fourth.
+
+The first history way is call-by-value, e.g below
+
+```
+double average( double a, double b );     // returns average of a and b
+void swap( double a, double b ;           // swaps a and b; wrong parameter types
+string randomItem( vector<string> arr );  // returns a random item in arr; inefficient
+```
+
+if we call average, the call-by-value copies the first parameter passed into a, and second parameter into y, then executes the code for teh average function specified elsewhere. It is gauranteed when average returns, the original parameters are unchanged, which is a often desirable. But, this property is also why call-by-value cannot work for swap, where the intention is to modify the original parameters.
+
+```
+swap(x, y)
+
+void swap(double & a, double & b)   // swaps a and b; correct parameter types
+```
+
+Changes to a and b, in the implementation of swap, can now change the x and y parameters. This form of paramter passing is call-by-reference in C++. In C++11 this is technically call-by-lvalue-reference, but call-by-reference is used throughout the book.
+
+Another problem with call-by-value is the parameter-passing mechanism forces a copy of a potentially large object. The cost of computing and returning a random array index is much cheaper than copying in the randomItem example above.
+
+Only benefit of copying an object is to keep the orignal while modifying the copy. The randomItem doesn't intend to make changes to the copy at all, but is instead reading the array passed. Instead of call-by-value here, we can use call-by-constant reference shown below.
+
+```
+string randomItem(const vector<string> & arr); // returns a random item in arr
+```
+
+
+1. Call-by-value is appropriate for small objects that should not be altered by function
+2. call-by-constant-reference is appropriate for large objects that should not be altered by teh function and are expensive to copy
+3. Call-by-reference is appropriate for all objects that may be altered by the function.
+
+Since C++11 adds rvalue reference, the fourth way to pass parameters is call-by-rvalue-reference. Moving an objects state is much easier than copying it as it is a simple pointer change. x=y can be a copy if y is an lvalue, but a move if y is an rvalue, or temporary variable. Primary use case is that we can overload a fucntion based on wheather a parameter is an lvalue or rvalue.
+
+
+```
+string randomItem( const vector<string> & arr ); // returns random item in lvalue arr
+string randomItem( vector<string> && arr );   // returns random item in rvalue arr
+
+vector<string> v { "hello", "world" };
+cout << randomItem( v ) << endl;  // invokes lvalue method
+cout << randomItem( { "hello", "world" } ) << endl; invokes rvalue method
+```
