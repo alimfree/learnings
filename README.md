@@ -1,2 +1,2 @@
 # learnings
-Dev notes from my career. 
+Notes from my career. 
