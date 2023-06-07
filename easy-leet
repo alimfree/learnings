@@ -1,0 +1,19 @@
+# @param {String[]} strs
+# @return {String}
+def longest_common_prefix(strs) 
+    pref = ""
+    prefix = ""
+    match = false
+    strs.first.length.times do |i|
+      puts prefix = pref if !!match == true
+      puts pref =  strs.first[0..i]
+      strs.each do |string|
+        match = string.slice pref
+        break if !!match == false
+      end
+      
+      break if !!match == false
+    end
+    prefix = pref if !!match == true
+    prefix
+end
